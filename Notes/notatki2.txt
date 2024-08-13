@@ -50,6 +50,7 @@ podmieniamy zapis:
   Aby pobrało nam produkty podczas odczytywania dań (Dish) przy find() / finOne() trzeba dopisać relations: ['products']
 
   Aby TypeORM wpisał dishID, musimy to danie wyszukać:
+
   async creteProduct(product: CreateProductDto): Promise<Product> {
     const newProduct = new Product();
     Object.assign(newProduct, product);
