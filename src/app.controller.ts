@@ -1,12 +1,34 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor() {}
 
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  getFruit(@Body() fruit) {
+    return fruit;
+  }
+
+  @Post()
+  createFruit(@Body() fruit: { name: string }) {
+    return fruit.name;
+  }
+
+  @Put()
+  updateFruit(): string {
+    return 'Hello';
+  }
+
+  @Delete(':fruitId')
+  deleteFruit(@Param('fruitId') fruitId: string) {
+    return { fruitId };
   }
 }
