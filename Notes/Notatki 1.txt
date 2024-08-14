@@ -80,3 +80,4 @@ Trzeba użyć "forwardRef" z @nestjs/common z dekoratorem @inject
   jest to "featcher module" czyli uzupełnia główny moduł. 
   Trzeba tutaj zrović refactoring kodu czyli przenieśćdish i products do "recipe"
   - przenieść wpisy z głównejgo app.module do recipe.module.ts
+  
