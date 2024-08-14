@@ -1,32 +1,30 @@
-import {
-  Inject,
-  Injectable,
-  NotFoundException,
-  forwardRef,
-} from '@nestjs/common';
-import { Product } from './Product';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Product } from './product.entity';
 import { CreateProductDto } from './dto/create-product-dto';
 import { UpdateProductDto } from './dto/update-product-dto';
-import { DishService } from 'src/recipe/dishes/dish.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, UpdateResult } from 'typeorm';
+import { DishService } from '../dishes/dish.service';
 
 @Injectable()
 export class ProductService {
   // Dependency Injection
   // wstrzkujemy bo chcemy miec jedna instacje DishService, w celu wywołania metody getOneDishById podczas tworzenia poroduktu
   constructor(
-    @Inject(forwardRef(() => DishService)) private dishService: DishService,
+    @InjectRepository(Product) private productRepository: Repository<Product>,
+    private dishService: DishService,
   ) {}
 
   async creteProduct(product: CreateProductDto): Promise<Product> {
-    const newProduct = new Product();
-    Object.assign(newProduct, product);
+    // const newProduct = new Product();
+    // Object.assign(newProduct, product);
+    const newProduct = await this.productRepository.create(product);
     newProduct.dish = await this.dishService.getOneDishById(product.dishId);
-    await newProduct.save();
-    return newProduct;
+    return await this.productRepository.save(newProduct);
   }
 
   readProducts(): Promise<Product[]> {
-    return Product.find();
+    return this.productRepository.find();
   }
 
   // getAllForDishId(dishId: number): Product[] {
@@ -34,7 +32,7 @@ export class ProductService {
   // }
 
   async getOneProductById(productId): Promise<Product> {
-    const product = await Product.findOne({
+    const product = await this.productRepository.findOne({
       where: {
         id: productId,
       },
@@ -46,14 +44,14 @@ export class ProductService {
     }
   }
 
-  async updateProduct(product: UpdateProductDto): Promise<Product> {
-    const productToUpdate = await this.getOneProductById(product.id);
-    Object.assign(productToUpdate, product);
-    return productToUpdate;
+  async updateProduct(product: UpdateProductDto): Promise<UpdateResult> {
+    await this.getOneProductById(product.id);
+    // Object.assign(productToUpdate, product);
+    return this.productRepository.update(product.id, product);
   }
 
   async deleteProduct(productId: number): Promise<Product> {
     const productToRemove = await this.getOneProductById(productId);
-    return productToRemove.remove();
+    return this.productRepository.remove(productToRemove);
   }
 }

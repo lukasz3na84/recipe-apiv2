@@ -27,7 +27,8 @@ imports: [TypeOrmModule.forFeature([Product])],
 
 Różnice między dwoma modelami danych DataMaper i ActiveRecord:
 https://gemini.google.com/app/e9457cddee80cb83?hl=pl
-My wybieramy ActiveRecord - rozszerzamy encjęo BaseEntity (mamy dostep wtedy do save, create etc.)
+My wybieramy ActiveRecord - rozszerzamy encję o BaseEntity (mamy dostep wtedy do save, create etc.)
+
 
 ======= Relacje w bazie danych =======
 One to many
@@ -50,6 +51,7 @@ podmieniamy zapis:
   Aby pobrało nam produkty podczas odczytywania dań (Dish) przy find() / finOne() trzeba dopisać relations: ['products']
 
   Aby TypeORM wpisał dishID, musimy to danie wyszukać:
+ 
   async creteProduct(product: CreateProductDto): Promise<Product> {
     const newProduct = new Product();
     Object.assign(newProduct, product);
@@ -59,4 +61,25 @@ podmieniamy zapis:
     return newProduct;
   }
 
-  
+  W Active Record chodzi o to, że tworzymy instancję (encję) np. 
+const newDish = new Dish() 
+na podstawie DTO, rozszerzamy jąza pomocą np. Object.assign()
+i potem zapisujemy save()
+
+Jest to cięzkie do testowania bo encja Dish (czy tez Produkt) jest połaczona sztywno z serwisem. Dlatego w dalszej części przechodzimy do "Dependency injection"
+dish.service.ts :
+
+constructor(@InjectRepository(Dish) private dishRepository: Repository<Dish>)
+
+W metodzie create, dodajemy w metodzie save() obiekt, który chcemy zapisać (tutaj dish: CreateDishDto)
+W metodzie "update" jest zwracany "UpdateResult" - można pominąc jawne przypisanie zwrotki.
+
+Przy tworzeniu nowego produktu, potrzebujemy nowego produktu wcesniej aby przypisac mu dish.
+Dlatego też tworzymy nowy produkt poprzez repozytorium podając w create(product) z Dto:
+  async creteProduct(product: CreateProductDto): Promise<Product> {
+    const newProduct = await this.productRepository.create(product);
+    newProduct.dish = await this.dishService.getOneDishById(product.dishId);
+    return await this.productRepository.save(newProduct);
+  }
+
+Po refactoringu kodu, usuwamy @Inject(forwardRef...) bo juz nie sa od siebie zależne.

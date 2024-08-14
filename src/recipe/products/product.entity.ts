@@ -5,7 +5,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Dish } from '../dishes/Dish';
+import { Dish } from '../dishes/dish.entity';
 
 export enum Unit {
   KG = 'kg',
