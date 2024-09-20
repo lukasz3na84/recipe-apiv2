@@ -1,0 +1,60 @@
+===== Tworzenie nowych wpisów ======
+Do controllera Dishes dodajemy  Guarda JwtGuard aby dalej pobraćz requesta jwt i req.user
+
+Dodajemy metodę:
+async getOneById(id: number): Promise<User> {
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.dishes', 'dishes')
+      .select(['user.id', 'user.email', 'dishes.name', 'dishes.id'])
+      .where('user.id = :id', { id })
+      .getOne();
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+
+  dostosowujemy service dish:
+    async create(userId: number, dish: CreateDishDto): Promise<Dish> {
+    const user = await this.userService.getOneById(userId);
+    return this.dishRepository.save({
+      ...dish,
+      user,
+    });
+  }
+  gdzie TypeORM sam sobie zapisze usera i połączy na podstawie zwracanej klasy tzn. nazwa const moze być user10 i     
+  return this.dishRepository.save({
+      ...dish,
+      user10,
+    });
+  i tak zadziała.
+
+  ======================== slug ====================
+  dodajemy kolumne slug do bazy - dish.entity.ts
+Instalujemy npm i slugify;
+I tworzymy metodę generateSlug()
+
+
+======== szczegółowa obsługa błędów w trybie developerskim ======
+database.exception-filter.ts
+- dopisujemy constructor(private readonly configService: ConfigService) {} w klasie DatabaseExceptionFilter
+- w pliku main.ts :
+- metodą app.get() pobieramy ConfigService
+- dopisujemy argument w konstruktorze:
+  const configService = app.get(ConfigService);
+  app.useGlobalFilters(new DatabaseExceptionFilter(configService));
+
+i dodajemy warunek gdzie dopisujemy stack i dokładną wiadomśćbłędu:
+
+    if (this.configService.get('NODE_ENV') === 'development') {
+      response.status(statusCode).json({
+        statusCode,
+        stack: exception.stack,
+        message: exception.message,
+      });
+    }
+
+Dodajemy wpisu w recipe.module.ts- DishService, ProductService:
+exports: [IngredientRepository, DishService, ProductService],    

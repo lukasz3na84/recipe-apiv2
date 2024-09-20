@@ -1,0 +1,43 @@
+====== Logowanie za pomocą tokenów =======
+
+tworzymy metode login, dodajemy dekorator @HttpCode(HttpStatus.OK) aby zwrócić 200 a nie 201
+Uwaga: importujemy bcrypt jako:
+import * as bcrypt from 'bcrypt';
+
+Do metody dodajemy parametr res, aby ta metoda mogła ustawić cookie w headerze
+  this.authService.setAuthTokens(res, {
+      user_id: user.id,
+    });
+
+Zwracamy [ token ] prawdopdodbnie pod przyszłe dodanie refreshTokena
+
+Wylogowanie:
+  clearAuthTokens(res) {
+    res.clearCookie('accessToken', {
+      domain: this.configService.get('DOMAIN'),
+      httpOnly: true,
+    });
+  }
+
+
+  ============= Refresh Token =============
+  JWT_REFRESH_SECRET_TOKEN=zv2Rjx1hZU1hRbCv/Em69/WIeAamaUKQVAj2m4I3DB/xRbjc8ZWcPLfzV3Gfmueb+xQXmLuYCo6nZVC4/Z1fTCXLT5KaxFTjYnLvAiqQy1eYEt5dYV9QJAAbQQhoau+FgGpgiTk2b1neJgiR1kr7XRFKD1fulRiqwHi72OkZCKpRQeOtqTXNRztllrDdJ4AiDMSI/awmeMNMDrWkZ7s9/OACOFINeSquUsx6NKPwWr8jrr1IyQsPqF2HlIYo5Us7ZmzImw4iI9ZnNKYAMD6CuIRfKt1lqXHeQVly1bmuF8FN9aq1d4GQlFrisiOgC2kpzBnxC8lYjN8aUsBMYlwHqg==
+  JWT_EXPIRATION_REFRESH_SECRET=604800
+
+  Mamy dwie daty wygaśnięcia- tokena i ciastka- korzystamy z tego samego ustawienia z .env
+
+  Dodajemy kolumne refreshToken do bazy danych a następnei modyfikujemy setAuthToken aby refreshToken zapisaćw bazie (zahasowany).
+  Przed zapisem używamy metody TypeORM "preload" - tutaj wyjasnienie:
+  https://chatgpt.com/c/66d9c1e4-5f3c-8013-8d7e-77af4e062c11
+
+  UWAGA!
+  W metodzie update podajemy payload.user_id aby wyłuskać z podanego wczesniej obiektu {
+    user_id: user.id
+  }
+  jego id, a nie cały obiekt.
+  
+  await this.userService.update(payload.user_id, {
+      refreshToken: bcrypt.hashSync(refreshToken, 10),
+    })
+
+

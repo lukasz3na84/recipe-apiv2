@@ -1,0 +1,44 @@
+========== Filtrowanie - obsdługa błędów ==============
+
+Tworzymy filtry aby obsłuzyć błędy np. bazy danych (próba zdublowania konta uzytkownika etc.)
+- tworzymy folder "Filters" a w nim databse.filters.ts
+- Tworzymy klase DatabaseExceptionFilter implements ExceptionFilter
+- Dodajemy dekorator @Catch() aby wyłapywać wszystkie błędy lub ograniczyć tylko do błędów TypeORMError- @Catch(TypeORMError)
+aby go włączyć:
+dodajemy wpis w main.ts:
+app.useGlobalFilters(new DatabaseExceptionFilter())
+
+Aby podglądnać strukturę obiektów exception i host, włacza sie debugowanie. Kod zdublowania wpisów to 1062 w mySql.
+Opis metody "catch":
+catch(exception: TypeORMError, host: ArgumentsHost) {
+//    debugger;
+    const ctx = host.switchToHttp(); //złapanie contextu
+    const response = ctx.getResponse(); // przypisanie obiektu response
+    let statusCode = HttpStatus.BAD_REQUEST; // przypisanie defaultowego kodu błędu
+    let message = 'Database error'; // przypisanie defaultowej wiadomości błędu
+
+    if (exception instanceof QueryFailedError) {
+      if (exception.driverError.errno === MysqlErrorCodes.ER_DUP_ENTRY) {
+        message = 'Duplicate entry';
+        statusCode = HttpStatus.CONFLICT;
+      }
+    }
+    response.status(statusCode).json({
+      statusCode,
+      message,
+    });
+  }
+
+  exception instanceof QueryFailedError -> wiemy że ma być to QueryFailedError z debuggera
+  MysqlErrorCodes - paczka z błedami mySql aby nie wpisywać na sztywno kodów np. 1062
+
+  Metoda switchToHttp() w NodeJs jest używana w kontekście frameworka NestJS. 
+  Pozwala ona na przełączenie kontekstu z ExecutionContext na HttpArgumentsHost, 
+  co daje dostęp do obiektu request i response. 
+  Dzięki temu można uzyskać dostęp do informacji o żądaniu HTTP, 
+  takich jak nagłówki, ciało żądania, parametry ścieżki i inne.
+
+Metoda ta jest często wykorzystywana w strażnikach (guards), 
+które kontrolują dostęp do określonych tras w aplikacji. 
+Strażnicy mogą używać metody switchToHttp() do sprawdzenia, czy użytkownik jest zalogowany, 
+czy ma odpowiednie uprawnienia, lub czy spełnia inne warunki.

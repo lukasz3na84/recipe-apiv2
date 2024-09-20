@@ -1,0 +1,78 @@
+==== Zmienne środowiskowe =====
+przenosimy dane konfiguracji bazy do .env
+instalujemy:
+npm i @nestjs/config
+
+w app.module importujemy go:
+@Module({
+  imports: [
+    ConfigModule.forRoot(),
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: process.env.DB_HOST,
+      database: process.env.DB_DATABASE,
+      username: process.env.DB_USERNAME,
+      port: parseInt(process.env.DB_PORT),
+      autoLoadEntities: true,
+      synchronize: true,
+    }),
+    RecipeModule,
+    UserModule,
+  ],
+  controllers: [AppController],
+  providers: [IngredientsService],
+})
+
+UWAGA! ConfigModule.forRoot() musi być wczytany jako pierwszy.
+Nie jest to idealne rozwiazanie, dlatego można skorzystać z serwisu udostepnionego przez ConfigModule
+Aby sie do niego odwołać trzeba skorzystaćz tzw. serwis provider'app. A wygląda to tak:
+@Module({
+  imports: [
+    ConfigModule.forRoot(),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        type: 'mysql',
+        host: configService.get<string>('DB_HOST'),
+        database: configService.get<string>('DB_DATABASE'),
+        username: configService.get<string>('DB_USERNAME'),
+        port: configService.get<number>('DB_PORT'),
+        autoLoadEntities: true,
+        synchronize: true,
+      }),
+      inject: [ConfigService],
+    }),
+    RecipeModule,
+    UserModule,
+  ],
+
+  Aby nie trzymać tego w pliku głównym app.module można go przenieść:
+  import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModuleAsyncOptions } from '@nestjs/typeorm';
+
+export const databaseConfig: TypeOrmModuleAsyncOptions = {
+  imports: [ConfigModule],
+  useFactory: async (configService: ConfigService) => ({
+    type: 'mysql',
+    host: configService.get<string>('DB_HOST'),
+    database: configService.get<string>('DB_DATABASE'),
+    username: configService.get<string>('DB_USERNAME'),
+    port: configService.get<number>('DB_PORT'),
+    autoLoadEntities: true,
+    synchronize: true,
+  }),
+  inject: [ConfigService],
+};
+i zaimportować do app.module.ts
+
+Dodatkowo w app.module.ts można ustawić:
+ConfigModule.forRoot({
+  isGlobal: true, // czy jest to globalny plik z ustawieniem (dostepny w całej aplikacji, pomaga w odwoływaniu sie do configservice w całej aplikacji)
+  envFilePath: [`.env.${process.env.NODE_ENV}`], // nazwa pliku jest zalezna os zmiennej środowiskowej np. w skryptach uruchomiowych
+    }),
+})
+
+Utworzenie pliku envValidationSchema.ts do walidacji danych (uzywamy Joi'a, ale chyba jest to analogiczna biblioteka do zod'a)
+
+
+

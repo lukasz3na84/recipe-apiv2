@@ -3,8 +3,8 @@ import { Product } from './product.entity';
 import { CreateProductDto } from './dto/create-product-dto';
 import { UpdateProductDto } from './dto/update-product-dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, UpdateResult } from 'typeorm';
-import { DishService } from '../dishes/dish.service';
+import { Like, Repository, UpdateResult } from 'typeorm';
+import { FilterQueryDto } from 'src/common/dto/filter-query.dto';
 
 @Injectable()
 export class ProductService {
@@ -12,19 +12,34 @@ export class ProductService {
   // wstrzkujemy bo chcemy miec jedna instacje DishService, w celu wywołania metody getOneDishById podczas tworzenia poroduktu
   constructor(
     @InjectRepository(Product) private productRepository: Repository<Product>,
-    private dishService: DishService,
+    // private dishService: DishService, - usuniete po wprowadzeniu Ingredients
   ) {}
 
   async creteProduct(product: CreateProductDto): Promise<Product> {
     // const newProduct = new Product();
     // Object.assign(newProduct, product);
     const newProduct = await this.productRepository.create(product);
-    newProduct.dish = await this.dishService.getOneDishById(product.dishId);
+    // newProduct.dish = await this.dishService.getOneDishById(product.dishId); - usuniete po wprowadzeniu Ingredients
     return await this.productRepository.save(newProduct);
   }
 
-  readProducts(): Promise<Product[]> {
-    return this.productRepository.find();
+  async readProducts(
+    filters: FilterQueryDto<Product>,
+  ): Promise<{ result: Product[]; total: number }> {
+    const [result, total] = await this.productRepository.findAndCount({
+      take: filters.limit,
+      skip: filters.offset,
+      order: { [filters.orderBy]: filters.order },
+      where: [
+        {
+          name: Like('%' + filters.query + '%'),
+        },
+      ],
+    });
+    return {
+      result,
+      total,
+    };
   }
 
   // getAllForDishId(dishId: number): Product[] {

@@ -1,0 +1,49 @@
+========= Pobieranie relacji ======
+- dodanie guarda, aby pobralo req.user.id
+@UseGuards(JwtAuthGuard)
+- dodanie warunków:
+  async findOne(userId: number, id: number): Promise<Ingredient> {
+    const ingredient = await this.ingredientRepository.findOne({
+      where: {
+        id,
+      },
+      relations: ['dish', 'product'],
+    });
+    if (
+      !ingredient ||
+      (!ingredient.dish.isPublic && ingredient.dish.userId !== userId)
+    ) {
+      throw new NotFoundException(`Ingredient with id ${id} not found`);
+    }
+    return ingredient;
+  }
+
+  ========== wyszukiwanie produktów po nazwie i innych filtrach ======
+controller:
+
+  @Get()
+  getAll(
+    @FilterBy<Product>()
+    filters: FilterQueryDto<Product>,
+  ) {
+    return this.productService.readProducts(filters);
+  }
+
+service:      async readProducts(
+    filters: FilterQueryDto<Product>,
+  ): Promise<{ result: Product[]; total: number }> {
+    const [result, total] = await this.productRepository.findAndCount({
+      take: filters.limit,
+      skip: filters.offset,
+      order: { [filters.orderBy]: filters.order },
+      where: [
+        {
+          name: Like('%' + filters.query + '%'),
+        },
+      ],
+    });
+    return {
+      result,
+      total,
+    };
+  }

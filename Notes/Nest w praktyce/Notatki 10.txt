@@ -1,0 +1,20 @@
+============= Aktualizacje rekordów =============
+
+PUT - aktualizujemy całość
+PATCH - aktualizujemy fragment
+
+Zmieniamy w naszym projekcie PUT na PATCH i cchemy aktualizowac tylko nazwę dania (pojedynczego dania)
+
+@Body() body: Partial<UpdateDishDto>,
+w UpdateDishDto dodajemy @IsOptional()
+- dodajemy w serwisie warunki sprawdzające:
+
+    if (!id) {
+      throw new NotFoundException('Dish not found');
+    }
+
+    if (dishUserId !== userId) {
+      throw new ForbiddenException('You are not allowed to update this dish');
+    }
+
+    

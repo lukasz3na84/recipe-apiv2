@@ -1,0 +1,20 @@
+==== Rejestrowanie uzytkowników ======
+nest g module auth
+nest g service auth
+nest g controller auth
+nest g service auth/user/user
+
+- usuwamy moduł "user"
+- dodajemy encje User do modułu auth.module.ts
+- eksportujemy exports: [AuthService, UserService] które będziemy używać w module Recipe
+- modyfikujemy encje User poprzez plik migracji- zieniamy username na email, dodajemy password
+
+===== Własne dekoratory =====
+Dekoratory to elementy zwracajace funkcje, a przyjmujące target, nazwę i "property descriptor"" jako argument.
+u nas będzie to dekorator @Match umieszczony w CreateUserDto, ktory będzie sprawdzał czy password i confirmPassword są sobie równe
+wyjasnienie:
+https://chatgpt.com/c/8589fe6f-e73d-4e24-96c3-3aea0c892f42
+
+
+
+

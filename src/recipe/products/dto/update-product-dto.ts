@@ -13,7 +13,4 @@ export class UpdateProductDto {
 
   @IsNumber()
   amount: number;
-
-  @IsNumber()
-  dishId: number;
 }

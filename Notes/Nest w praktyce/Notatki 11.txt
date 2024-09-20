@@ -1,0 +1,68 @@
+==== Middleware =======
+Jezeli chcemy dodać middleware do wszytskich modułów i wszystkich ścieżkach, to mżemy to zrobć w app.module.ts:
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+
+lub
+
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+    .apply(LoggerMiddleware) // lista middlewarów
+    .forRoutes({ path: 'dish', method: RequestMethod.GET});
+  }
+
+kiedy funkcje a kiedy klasy? Jezeli potrzeba zalezności np.  wstrzyknięcie do konstruktora UserService to wybieramy klase.
+
+=== PIPE =====
+uzywamy gdy chcemy użyć na danych które wpadjaą jakiejś walidacji lub transformacji
+
+app.useGlobalPipes(new ValidationPipe());
+
+nest g pi pipes/Transformer
+
+==== GUARDS =========
+
+nest g gu common/guards/app 
+
+mozna globalnie uzywać guardów app.useGlobalPipes()
+
+-- context - możliwośc wyciągniecia sobie parametry Request i Response
+
+
+//reflector- możliwośc odczytania metadanych, potzebne jest wczytanie go w contructorze
+constructor(private readonly reflector: Reflector) {}
+
+//za pomoca decoratora "Admin" ustawiamy role admin na endpoincie
+// z contaxtu mozemy rolę pobrać i sprawdzić czy user ma dostep
+//mozna było tez ustawić dekoratorem @SetMetaData() w controllerze bezpośrednio na endpoincie, ale trzeba by sie powtrarzac tym zapisem w wielu miejscach
+
+Jezeli chcemy w NESTJS ustawić dostep tylko dla ADMIN'a i żeby sie nei powtarzać zapisem @UseGuards() i @SetMetadata('roles', ['admin])
+to lepiej użyć dekoratora @Admin() i w nim sie odnieść do SetMetaData:
+
+=== FILTERS =====
+uzywane do wyjątków np. DatbaseExceptionFilter
+
+globalne ustawienie:
+app.useGlobalFilters(...) lub do modułu app.module.ts w providers:
+{
+  provide: APP_FILTER,
+  userClass: HttpFilter
+}
+
+W praktyce- inna zwrotka w środowisku developerskim a inny na prodzie np. DatabaseExceptionFilter
+i na przykład logowanie błędów
+catch musi zwrócic response()
+
+--- Utworzenie swojego błędu------
+src/exception/custom-exception.ts
+
+Mozna używać ich jako dekoratory np. w controlerze np.
+@Get('/user)
+@UserFilter(new HttpFilter())
+
+albo do akcji np. throw new ....
+
+

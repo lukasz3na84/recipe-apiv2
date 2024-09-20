@@ -1,0 +1,15 @@
+=== User ======
+Utworzenie modułu "user"
+nest g mo user
+
+Połaczenie relacji OneToMamy i ManyToOne
+Jeden użytkownik moze być włascicielem kilku dań
+user.entity.ts:
+  @OneToMany(() => Dish, (dish: Dish) => dish.user)
+  dishes: Dish[];
+
+dish.entity.ts
+  @ManyToOne(() => User, (user: User) => user.dishes)
+  user: User;
+  
+    

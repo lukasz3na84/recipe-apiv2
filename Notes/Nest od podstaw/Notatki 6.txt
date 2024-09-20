@@ -1,0 +1,59 @@
+==== Własne repozytoria ======
+Na przykładzie Ingredients utworzymy własne repozytorium, dodając swoje metody - z możliwością jego rozszerzenia.
+Używane jest to w dużych aplikacjach.
+Po co to? Wczesniej uzywaliśmy repozytorium Dish, Product (ze wskazaniem encji Dish, Product), teraz zrobimy sobie własne
+
+- tworzymy plik ingredient.repository.ts
+- tworzymy klasę IngredientRepository extends Repository<Ingredient>
+- dekorator @EntityRepository(Ingredient) - UWAGA! Juz go nei używamy, bo jest przestażały i nie dziła od nowych wersji. Zamiast tego:
+@Injectable()
+constructor:
+@InjectRepository(Ingredient)
+private readonly repository: Repository<Ingredient>,
+- wciągamy repozytorium do modułu recipe.module.ts
+imports: [
+    TypeOrmModule.forFeature([Product, Dish, Ingredient]),
+provider: [IngredientRepository] 
+exports: [IngredientRepository]   
+
+    @Injectable()
+export class IngredientRepository {
+  constructor(
+    @InjectRepository(Ingredient)
+    private readonly repository: Repository<Ingredient>,
+  ) {}
+}
+
+Teraz do tego repozytorium możmey się odwołać w IngredientService:
+
+@Injectable()
+export class IngredientsService {
+  constructor(private readonly ingredientRepository: IngredientRepository) {}
+}
+// w tym podejsciu trzeba defioniować metody nd. findOne() etc.
+
+Jednak zmieniłem na dziecziczenie z Repository<Ingredient>:
+
+@Injectable()
+export class IngredientRepository extends Repository<Ingredient> {
+  constructor(
+    @InjectRepository(Ingredient)
+    private readonly repositoryIngredient: Repository<Ingredient>,
+  ) {
+    super(
+      repositoryIngredient.target,
+      repositoryIngredient.manager,
+      repositoryIngredient.queryRunner,
+    );
+  }
+
+  // async findOne(id: number): Promise<Ingredient | undefined> {
+  //   return await this.repositoryIngredient.findOne({ where: { id } });
+  // }
+  // musielibysmy definiować metody ale jakbysmy nie dziedziczyli z Repositor<Ingredient>
+}
+
+
+Wyjasnienie zmian:
+https://chatgpt.com/c/1b31531e-32e2-48b7-9330-1341b37970e9
+

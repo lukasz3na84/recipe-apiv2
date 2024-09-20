@@ -1,0 +1,40 @@
+==== Migracje ====
+Wyłaczamy synchroniazację w databseConfig: 
+synchronize: false
+
+tworzymy foldery database/migrations
+
+Problem:
+ConfigService i jego ustawienia jest serwisem keidy działa apliakcja. 
+Kiedy uruchamiamy migrację, serwis nie działa i musimy dać mu dostęp do zmiennych środowiskowych.
+Dodajemy wpisy do configu:
+- migrationsRun: false (automatyczne robienie migracji)
+- entities : ['dist/**/*.entity{.ts,.js}'] -wszystkie pliki encji
+- migrations: ['dist/databse/migrations/**/*{.ts, *.js}'] - wskazanie pliki migracji
+- cli: { migrations: 'src/databse/migrations'}
+
+Aby odwołac sie do metody klasy, która bedzie miała konfigurację, tworzymy kalse i metodę statyczną, która zwraca obiekt, który wcześniej był zwracany przez fabryke.
+
+a potem odwołujemy sie do databaseConfig:
+
+export const databaseConfig: TypeOrmModuleAsyncOptions = {
+  imports: [ConfigModule],
+  useFactory: async (configService: ConfigService) =>
+    TypeOrmConfig.getOrmConfig(configService),
+  inject: [ConfigService],
+};
+
+Wyjasnienie: https://chatgpt.com/c/7db3cd67-8e3d-4e72-85c8-83de54eefd4f
+
+Utworzenie migracji:
+NODE_ENV=development npx ts-node ./node_modules/typeorm/cli.js migration:create src/database/migrations/CreateUserTable
+
+W pliku migracyjnym tworzymy skrypt tworzący np. User.
+UWAGA! Zmiana i dostosowanie do nowej wersji
+- powrót do ustawień konfiguracji bazy w app.module.ts 
+- korekta pliku database.config.ts - dodanie obiektu DataSource, który jest wymagany w nowych wersjach
+
+Trzeba było dodac zapis w app.module.ts aby wczytało prawidłowy plik .env pod pozycja configService:
+const env = process.env.NODE_ENV || 'development';
+const dotenv_path = path.resolve(process.cwd(), `.env.${env}`);
+dotenv.config({ path: dotenv_path });
