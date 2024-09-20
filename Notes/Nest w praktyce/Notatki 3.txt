@@ -1,0 +1,65 @@
+==== Tokeny JWT =====
+npm install @nestjs/jwt
+
+w auth.module.ts wpisujemy dane do konfiguracji JWT. Uzywamy fabryki.
+useFactory zwraca obiekt z ustawieniami
+
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET_TOKEN'),
+        signOptions: {
+          expiresIn: `${configService.get<string>('JWT_EXPIRATION_SECRET')}s`,
+        },
+      }),
+      inject: [ConfigService], <- wazne wstrzyknięcie ConfigService'u !!!!!
+    }),
+  ],
+
+JWT będzie odpowiedzialny za specjalnych tokenów, które będziemy przesyłali do przeglądarki wykorzystując "HTTP only cookie". ciasto widoczne w przegląrce i będzie dołączane do każdego kolejnego zapytania,
+ale nie bedzie dostepny po stronie aplikacji po stronie klienta. 
+
+Aby wygenerować token w node wpisujemy w terminalu:
+node
+require('crypto').randomBytes(256).toString('base64')
+
+W controlerze w konstruktorze dodajemy JwtService.
+
+Zmieniamy na Pick<CreateUserDto, 'email' | 'password'> w tych miejscach gdzie podajemy email i password podczas tworzenia usera. (auth.service.ts i user.service.ts)
+W funkcji register w auth.controller.ts dodajemy @Res() aby zwrócić res i móc go zmodyfikować.
+Dodatkowo w cookie() ustawiamy paramet httpOnly, domene, date wygaśnięcia równą dacie wygasnięcia tokena
+    return res
+      .cookie('access_token', token, {
+        httpOnly: true,
+        domain: this.configService.get('DOMAIN'),
+        expires: new Date(
+          Date.now() + this.configService.get('JWT_EXPIRATION_SECRET') * 1000,
+        ),
+      })
+
+Aby ciacha zadziałały w main.ts trzeba ustawić app.use(cookieParser());
+Instalujemy npm i -D @types/cookie-parser cookie-parser
+UWAGA- trzeba dopisać ConfigService w auth.module.ts w providers:
+providers: [AuthService, UserService, ConfigService],
+
+Instalujemy bcrypt i jego typy
+npm i --save-dev bcrypt @types/bcrypt
+Uwaga, importujemy bcrypt jako: 
+import * as bcrypt from 'bcrypt';
+aby zahashować hasło i zmieniamy metode "create" - usuwamy spacje z emaila, hash hasła:
+
+  async create(user: Pick<CreateUserDto, 'email' | 'password'>): Promise<User> {
+    return await this.userRepository.save({
+      email: user.email.trim().toLowerCase(),
+      password: this.hashPassword(user.password),
+    });
+  }
+
+  hashPassword(password: string): string {
+    return bcrypt.hashSync(password, 10);
+  }
+
+

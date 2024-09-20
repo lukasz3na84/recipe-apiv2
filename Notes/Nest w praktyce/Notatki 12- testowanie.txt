@@ -1,0 +1,26 @@
+--- gdzie sa zbierane zmienne środowiskowe? odp. app.module.ts:
+imports: [
+  ConfigModule.forRoot({
+    isGobal: true,
+    envFilePath...
+  })
+]
+
+==================
+Podzielenie testu na 3 bloki:
+Arrange- co potrzebuje aby wykonac test
+Act- moment odpalenia funkcjonalności
+Assert- moje asercje czyli spodziewany wynik
+
+=== Grupowqnie testów ====
+
+describe('nazwa np. funkcji', () => {
+// grupy testów 
+it()..
+
+
+it()...
+
+})
+
+beforeEach()

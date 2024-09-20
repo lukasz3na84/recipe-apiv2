@@ -1,0 +1,25 @@
+===== Ingredients ======
+nest g co ingredients
+nest g s ingredients
+
+założenia: Ingredients to przepis (składniki dania). 
+Jedne produkt np. sól (salt) moze występować w wielu składnikach w różnych ilościach (dlatego wartość amount przeniesiono z Dish to Ingredients).
+Relacja między produktami i Ingredients to OneToMany (jeden produkt mże wystepowac w wielu składnikach). 
+Jedno danie może być przypisane do wielu skąłdników Onetomany() -  relacja między daniami i składnikami.
+Jeden składnik (Ingredients) może byc przypisany TYLKO do jednego dania- OneToOne. (jednak w kursie jest ManyToOne, nie wiem czy to nie jest błąd)
+
+======= Instalacja Postgres ======
+sudo apt install postgresql
+starujemy baze:
+sudo service postgresql start
+zalogowanie:
+sudo -u postgres psql recipe
+npm install pd --save
+
+sudo -u postgres createuser --interactive
+could not change directory to "/home/lukasz": Permission denied
+Enter name of role to add: recipeadmin
+Shall the new role be a superuser? (y/n) y
+sudo adduser recipeadmin
+password: admin
+

@@ -1,0 +1,28 @@
+====== Guards ==========
+Tworzymy endpoint 'refresh'
+  @Post('refresh')
+  @UseGuards(RefreshAuthGuard)
+
+  Uzywamy Guarda RefreshAuthGuard
+  Instalujemy:
+  npm install passport passport-jwt @nestjs/passport
+
+Tworzymy auth/rjwt.strategy.ts  
+
+Rozpisanie całego procesu tutaj:
+https://chatgpt.com/c/66daabd9-3d00-8013-b00c-752165966c4d
+
+Następnie tworzymy guarda:
+
+//refresh-jwt to nazwa Strategii w passport
+@Injectable()
+export class RefreshAuthGuard extends AuthGuard('refresh-jwt') {}
+
+i podpinamy go do controllera.
+Ważne a nie było w filmiku, to trzeba dodać RefreshJwtStrategy do providerów w auth.module.ts
+
+Procedura na odświeżenie tokena:
+- bierzemy refreshToken i go rozkodowujemy (zapisaną strategią)
+- zapisany refreshToken w req.user.refreshToken porównujemy bcryptem z refreshTokenem w bazie
+- jak się zgadzają to wywołujemy funkcję setAuthTokens czyli ponowne wygenerowanie tokenów i ciastek
+- 

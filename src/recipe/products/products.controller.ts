@@ -7,29 +7,33 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product-dto';
 import { UpdateProductDto } from './dto/update-product-dto';
 import { ProductService } from './product.service';
-import { DishService } from 'src/recipe/dishes/dish.service';
+import { JwtAuthGuard } from 'src/auth/auth/jwt.guard';
+import { FilterBy } from 'src/common/decorators/filter-by.decorator';
+import { Product } from './product.entity';
+import { FilterQueryDto } from 'src/common/dto/filter-query.dto';
 
 @Controller('products')
 export class ProductsController {
   //Dependency Injection
-  constructor(
-    private dishService: DishService,
-    private productService: ProductService,
-  ) {}
+  constructor(private productService: ProductService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   createOne(@Body() product: CreateProductDto) {
-    this.dishService.getOneDishById(product.dishId);
     return this.productService.creteProduct(product);
   }
 
   @Get()
-  getAll() {
-    return this.productService.readProducts();
+  getAll(
+    @FilterBy<Product>()
+    filters: FilterQueryDto<Product>,
+  ) {
+    return this.productService.readProducts(filters);
   }
 
   @Get(':id')

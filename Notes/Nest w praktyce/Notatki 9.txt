@@ -1,0 +1,18 @@
+===== Throttling i Limity =====
+npm i @nestjs/throttler
+
+app.module.ts
+
+ThrottlerModule.forRoot([
+      {
+        ttl: 1,
+        limit: 1,
+      },
+
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    }]
+
+- jak za duz obedzie prób to dostaniemy bład 429    

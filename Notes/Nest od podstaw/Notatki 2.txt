@@ -61,7 +61,7 @@ podmieniamy zapis:
     return newProduct;
   }
 
-  W Active Record chodzi o to, że tworzymy instancję (encję) np. 
+W Active Record chodzi o to, że tworzymy instancję (encję) np. 
 const newDish = new Dish() 
 na podstawie DTO, rozszerzamy jąza pomocą np. Object.assign()
 i potem zapisujemy save()

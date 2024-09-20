@@ -1,10 +1,8 @@
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class UpdateDishDto {
-  @IsNumber()
-  id: number;
-
   @IsString()
+  @IsOptional()
   name: string;
 
   @IsString()
@@ -12,5 +10,6 @@ export class UpdateDishDto {
   description?: string;
 
   @IsNumber({}, { message: 'Servings must be provided' })
+  @IsOptional()
   servings: number;
 }

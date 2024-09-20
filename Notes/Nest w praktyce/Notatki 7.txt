@@ -1,0 +1,56 @@
+================ Pobieranie i filtrowanie danych ==============
+- odczytujemy tylko wpisy publiczne lub tylko należące do nich
+
+paginacja, wyszukiwanie po nazwie
+
+Wyszukiwanie jednego dania:
+- dodajemy req.user.id
+- w service dish dodajemy relations: ['users']
+
+Warunki Where i użycia OR
+https://chatgpt.com/c/66e2bfdb-c55c-8013-ba6a-4cd5f633606e
+
+Użycie @Exclude() - wyłaczenie z response password i refreshToken'a
+https://chatgpt.com/c/66e2bfdb-c55c-8013-ba6a-4cd5f633606e
+
+======== Filtrowanie, sortowanie etc. ======
+w Katalogu "Common" tworzymy folder "Dto" a tam filter-query.dto.ts
+klasa jest generyczna ze względu na orderBy, ktora przyjmuje klucze (kolumny) po których mozna sortować
+FilterQueryDto<ENTITY extends BaseEntity> a kalsa ta rozszerza BaseEntity czyli musimy podac kalsę powiązaną z TypeORM
+Domyślne wartości:
+@FilterBy() - dekorator filter
+nest generate decorator filterBy (nest g d filterBy) ( w katalogu decorators)
+Dokumentacja: https://docs.nestjs.com/custom-decorators
+
+FilterBy: 
+- pod "data" znajduje sie wszystko co w dodamy w controllerze FilterBy() czyli np. limit, offset, orderBy, order(asc, desc), query
+- <ENTITY extends BaseEntity> przed (data, ctx) => {} ustawiamy jako typ generyczny
+
+
+export const FilterBy = createParamDecorator(
+  <ENTITY extends BaseEntity>(
+    data: FilterQueryDto<ENTITY>,
+    ctx: ExecutionContext,
+  ) => {
+    const request = ctx.switchToHttp().getRequest();
+    const {
+      query = data?.query ?? '', // wartości domyślne
+      offset = data?.offset ?? 0,
+      limit = data?.limit ?? 10,
+      order = data?.order ?? 'DESC',
+      orderBy = data?.orderBy ?? 'createdAt',
+    } = request.query; //wyciągamy query z parametru requesta
+    return new FilterQueryDto(query, offset, limit, order, orderBy); //tworzymy nowy obiekt FilterQueryDto
+  },
+);
+
+dopisujemy constructor w FilterQueryDto:
+  constructor(query, offset, limit, order, orderBy) {
+    this.query = query;
+    this.offset = Number(offset);
+    this.limit = Number(limit);
+    this.order = order;
+    this.orderBy = orderBy;
+  }
+
+https://chatgpt.com/c/66e32a30-9eac-8013-b3a7-e98279fadcb8
