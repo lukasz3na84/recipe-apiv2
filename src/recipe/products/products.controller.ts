@@ -12,10 +12,10 @@ import {
 import { CreateProductDto } from './dto/create-product-dto';
 import { UpdateProductDto } from './dto/update-product-dto';
 import { ProductService } from './product.service';
-import { JwtAuthGuard } from 'src/auth/auth/jwt.guard';
-import { FilterBy } from 'src/common/decorators/filter-by.decorator';
+import { JwtAuthGuard } from '../../auth/auth/jwt.guard';
+import { FilterBy } from '../../common/decorators/filter-by.decorator';
 import { Product } from './product.entity';
-import { FilterQueryDto } from 'src/common/dto/filter-query.dto';
+import { FilterQueryDto } from '../../common/dto/filter-query.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -50,8 +50,7 @@ export class ProductsController {
   }
 
   @Delete(':id')
-  deleteOne(@Param('id', ParseIntPipe) productId: number) {
-    this.productService.getOneProductById(productId);
-    return { productId };
+  async deleteOne(@Param('id', ParseIntPipe) productId: number) {
+    return await this.productService.deleteProduct(productId);
   }
 }

@@ -8,7 +8,7 @@ import { UpdateDishDto } from './dto/update-dish-dto';
 import { CreateDishDto } from './dto/create-dish-dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
-import { UserService } from 'src/auth/user/user.service';
+import { UserService } from '../../auth/user/user.service';
 import slugify from 'slugify';
 import { instanceToPlain } from 'class-transformer';
 import { FilterQueryDto } from 'src/common/dto/filter-query.dto';

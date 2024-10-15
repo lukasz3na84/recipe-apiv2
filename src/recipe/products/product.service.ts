@@ -62,11 +62,30 @@ export class ProductService {
   async updateProduct(product: UpdateProductDto): Promise<UpdateResult> {
     await this.getOneProductById(product.id);
     // Object.assign(productToUpdate, product);
-    return this.productRepository.update(product.id, product);
+    return await this.productRepository.update(product.id, product);
   }
 
-  async deleteProduct(productId: number): Promise<Product> {
-    const productToRemove = await this.getOneProductById(productId);
-    return this.productRepository.remove(productToRemove);
+  async deleteProduct(productId: number): Promise<{ productId: number }> {
+    try {
+      // Ensure getOneProductById is asynchronous
+      const productToRemove = await this.getOneProductById(productId);
+
+      // Log for debugging
+      console.log('Product to remove:', productToRemove);
+
+      // Handle potential errors in repository method
+      await this.productRepository.remove(productToRemove).catch((error) => {
+        console.error('Error removing product:', error);
+        throw error; // Re-throw the error for testing purposes
+      });
+
+      return { productId };
+    } catch (error) {
+      // Handle general errors
+      console.error('Error deleting product:', error);
+      throw error; // Re-throw the error for testing purposes
+    }
   }
 }
+
+// https://chatgpt.com/c/670cd57f-5164-8013-8f0f-85332bbf8ea0

@@ -13,10 +13,10 @@ import {
 import { UpdateDishDto } from './dto/update-dish-dto';
 import { CreateDishDto } from './dto/create-dish-dto';
 import { DishService } from './dish.service';
-import { JwtAuthGuard } from 'src/auth/auth/jwt.guard';
-import { FilterQueryDto } from 'src/common/dto/filter-query.dto';
+import { JwtAuthGuard } from '../../auth/auth/jwt.guard';
+import { FilterQueryDto } from '../../common/dto/filter-query.dto';
 import { Dish } from './dish.entity';
-import { FilterBy } from 'src/common/decorators/filter-by.decorator';
+import { FilterBy } from '../../common/decorators/filter-by.decorator';
 
 @Controller('dishes')
 @UseGuards(JwtAuthGuard)

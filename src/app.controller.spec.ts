@@ -13,9 +13,22 @@ describe('AppController', () => {
     appController = app.get<AppController>(AppController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+  describe('getHello', () => {
+    let name: string;
+    it('should return "Hello Łukasz!"', () => {
+      name = 'Łukasz';
+      expect(appController.getHello(name)).toBe('Hello Łukasz!');
+    });
+  });
+
+  describe('createFruit', () => {
+    it('should return proper fruit', () => {
+      // Arrange
+      const fruitDto = { name: 'Apple' };
+      // Act
+      const result = appController.createFruit(fruitDto);
+      // Assert
+      expect(result).toEqual(fruitDto);
     });
   });
 });

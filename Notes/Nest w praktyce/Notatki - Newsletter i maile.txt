@@ -1,0 +1,12 @@
+- narzedzia do tworzenia maili: MJML, Postcards
+
+===== Integracja Sendgrid ==========
+- uatawienie klucza API do Sendgrid
+dokumentacja NodeJs:
+https://www.twilio.com/docs/sendgrid/for-developers/sending-email/quickstart-nodejs
+
+====== CRON W NestJS =======
+CRON w NestJS to Task Scheduling
+
+https://docs.nestjs.com/techniques/task-scheduling
+

@@ -10,6 +10,7 @@ import * as path from 'path';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { LoggerMiddleware } from './common/logger/logger.middleware';
+import { MailerService } from './mailer/mailer.service';
 
 // Wczytanie odpowiedniego pliku .env na podstawie NODE_ENV
 const env = process.env.NODE_ENV || 'development';
@@ -49,6 +50,7 @@ dotenv.config({ path: dotenv_path });
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+    MailerService,
   ],
 })
 export class AppModule {

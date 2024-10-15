@@ -6,8 +6,9 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { User } from 'src/auth/user/user.entity';
+
 import { Ingredient } from '../ingredients/ingidient.entity';
+import { User } from '../../auth/user/user.entity';
 
 @Entity()
 export class Dish extends BaseEntity {

@@ -16,11 +16,33 @@ Assert- moje asercje czyli spodziewany wynik
 
 describe('nazwa np. funkcji', () => {
 // grupy testów 
-it()..
+it('opis', () => {})..
 
 
-it()...
+it('opis', () => {})..
 
 })
 
 beforeEach()
+
+-- aby usunąc błędy trzeba zastąpić ścieżkę bezpośrednią ścieżką względną w imporcie:
+Zamiast:
+
+import { User } from 'src/auth/user/user.entity';
+Spróbuj:
+import { User } from '../../auth/user/user.entity';
+
+Wyjąsnienie:
+https://chatgpt.com/c/66faca83-5b1c-8013-946d-fdf0f2fd5911
+
+https://chatgpt.com/c/66fc0c4c-2838-8013-bb8b-c6bc2bd65183 - dokłądny opis na podstawie controllera products.controller.spec.ts
+
+======= 
+Testowanie Dish Service
+
+https://chatgpt.com/c/66fd0b48-09ac-8013-8817-74a20197a633
+
+Pozostałe (samodzielne) pisane testy controllera product:
+https://chatgpt.com/c/66fe6b89-9d5c-8013-a838-ea1fce741a05
+
+

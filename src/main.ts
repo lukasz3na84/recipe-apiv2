@@ -7,7 +7,12 @@ import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // Ignoruje pola, które nie są w DTO
+      forbidNonWhitelisted: true, // Rzuca wyjątek, gdy znajdzie nadmiarowe pola
+    }),
+  );
   const configService = app.get(ConfigService);
   app.useGlobalFilters(new DatabaseExceptionFilter(configService));
   app.use(cookieParser());

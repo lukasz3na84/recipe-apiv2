@@ -63,7 +63,7 @@ podmieniamy zapis:
 
 W Active Record chodzi o to, że tworzymy instancję (encję) np. 
 const newDish = new Dish() 
-na podstawie DTO, rozszerzamy jąza pomocą np. Object.assign()
+na podstawie DTO, rozszerzamy ją za pomocą np. Object.assign()
 i potem zapisujemy save()
 
 Jest to cięzkie do testowania bo encja Dish (czy tez Produkt) jest połaczona sztywno z serwisem. Dlatego w dalszej części przechodzimy do "Dependency injection"

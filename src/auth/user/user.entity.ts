@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer';
-import { Dish } from 'src/recipe/dishes/dish.entity';
+import { Dish } from '../../recipe/dishes/dish.entity';
 import {
   BaseEntity,
   Column,
